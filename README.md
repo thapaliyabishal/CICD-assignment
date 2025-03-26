@@ -48,3 +48,6 @@ docker-compose up --build
 ### CI/CD
 
 This repository is set up with GitHub Actions to automatically run tests and build Docker images on commits and pull requests. The CI/CD configuration can be found in the `.github/workflows` directory.
+
+
+# Triggering CI/CD workflow
