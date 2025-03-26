@@ -50,6 +50,9 @@ jobs:
     runs-on: ubuntu-latest
     # Important step - add your environment name
     # environment: PROD
+    environment: 
+      name: production
+
     steps:
         - uses: actions/checkout@v3
 
