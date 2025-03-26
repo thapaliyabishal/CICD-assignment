@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
@@ -12,54 +12,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
-      - uses: actions/checkout@v3
+      - name: Checkout the repository
+        uses: actions/checkout@v2
 
-      # Set up Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: '3.9'
 
-      # Install Python dependencies
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
-      # Step 3: Lint Python code
-      #### 
       - name: Lint Python code
-        run: |
-          if [ -f .flake8 ] || [ -f setup.cfg ] || [ -f tox.ini ] || [ -f .pep8 ]; then
-            flake8 .
-          else
-            echo "No lint configuration found, skipping linting."
-          fi
+        run: flake8 .
 
-
-      # Step 4: Run Python tests
-      ####
       - name: Run Python tests
-        run: |
-          if [ -f pytest.ini ] || ls tests; then
-            pytest
-          else
-            echo "No tests found, skipping tests."
-          fi
+        run: pytest
 
-
-   deploy:  # <--- Add below backend_flask
+  deploy:
+    name: Deploy & Push to Docker Hub
     needs: backend_flask
     runs-on: ubuntu-latest
     environment:
       name: production
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend_flask:latest .
+
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend_flask:latest
